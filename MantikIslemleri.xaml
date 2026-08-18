@@ -1,0 +1,791 @@
+﻿<Window x:Class="AlarmApp.MantikIslemleri"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Mantıksal Alarm Oluşturma"
+        Width="1080"
+        Height="860"
+        MinWidth="960"
+        MinHeight="780"
+        Background="#0B1120"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+
+        <!-- ================= RENK PALETİ ================= -->
+        <SolidColorBrush x:Key="BrushBg"        Color="#0B1120"/>
+        <SolidColorBrush x:Key="BrushCard"      Color="#141B2D"/>
+        <SolidColorBrush x:Key="BrushCardEdge"  Color="#1F2A44"/>
+        <SolidColorBrush x:Key="BrushField"     Color="#0F1626"/>
+        <SolidColorBrush x:Key="BrushBorder"    Color="#2A3652"/>
+        <SolidColorBrush x:Key="BrushText"      Color="#E7ECF7"/>
+        <SolidColorBrush x:Key="BrushSubText"   Color="#8B96AF"/>
+        <SolidColorBrush x:Key="BrushAccent"    Color="#4ADE80"/>
+        <SolidColorBrush x:Key="BrushPrimary"   Color="#3B82F6"/>
+        <SolidColorBrush x:Key="BrushDanger"    Color="#F87171"/>
+
+        <!-- ================= ETİKET ================= -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource BrushSubText}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,8,0,3"/>
+        </Style>
+
+        <!-- ================= COMBOBOX ================= -->
+        <Style x:Key="DarkComboBox" TargetType="ComboBox">
+            <Setter Property="Height" Value="33"/>
+            <Setter Property="Background" Value="{StaticResource BrushField}"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushText}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="28"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter x:Name="ContentSite"
+                                                   Content="{TemplateBinding SelectionBoxItem}"
+                                                   Margin="{TemplateBinding Padding}"
+                                                   VerticalAlignment="Center"
+                                                   IsHitTestVisible="False"/>
+                                <Path Grid.Column="1"
+                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                      Fill="{StaticResource BrushSubText}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                                <ToggleButton Grid.ColumnSpan="2"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                <Popup x:Name="Popup"
+                                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                                       Placement="Bottom"
+                                       AllowsTransparency="True">
+                                    <Border Background="{StaticResource BrushCard}"
+                                            BorderBrush="{StaticResource BrushBorder}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            MinWidth="{TemplateBinding ActualWidth}"
+                                            Padding="4">
+                                        <ScrollViewer MaxHeight="220">
+                                            <ItemsPresenter/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource BrushText}"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1F2A44"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ================= TEXTBOX ================= -->
+        <Style x:Key="DarkTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="33"/>
+            <Setter Property="Background" Value="{StaticResource BrushField}"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushText}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{StaticResource BrushText}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ================= BUTON (dolgulu) ================= -->
+        <Style x:Key="SolidButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ================= BUTON (çerçeveli / ikincil) ================= -->
+        <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource SolidButton}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushSubText}"/>
+        </Style>
+
+        <!-- ================= LİSTE KARTI ================= -->
+        <Style x:Key="ListCard" TargetType="Border">
+            <Setter Property="Background" Value="#182140"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="BorderBrush" Value="#26335A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- ================= BÖLÜM BAŞLIĞI (form gruplama) ================= -->
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource BrushSubText}"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,13,0,7"/>
+        </Style>
+
+        <!-- ================= İNCE BÖLÜM AYIRICI ================= -->
+        <Style x:Key="SectionDivider" TargetType="Border">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Background" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+
+        <!-- ================= SEÇİLEBİLİR LİSTE ÖĞESİ (birleştirme için) ================= -->
+        <Style x:Key="SecilebilirListeOgesi" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="SecimCercevesi"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="2"
+                                CornerRadius="10">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="SecimCercevesi" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ================= SİHİRBAZ KARTI (adım kartları) ================= -->
+        <Style x:Key="WizardCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BrushCard}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushCardEdge}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="18"/>
+        </Style>
+
+        <!-- ================= ADIM RAKAM RÖZETİ ================= -->
+        <Style x:Key="StepBadge" TargetType="Border">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Background" Value="{StaticResource BrushPrimary}"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="StepBadgeText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="StepLabelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource BrushSubText}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,6,0,0"/>
+        </Style>
+
+        <Style x:Key="StepConnectorLine" TargetType="Border">
+            <Setter Property="Height" Value="2"/>
+            <Setter Property="Background" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="6,15,6,0"/>
+        </Style>
+
+        <!-- ================= MANTIK KAPISI BUTONU (VE / VEYA / YADA) ================= -->
+        <Style x:Key="LogicGateButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Width" Value="96"/>
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="16">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" Opacity="0.30" BlurRadius="14" ShadowDepth="2"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.90"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ================= ÖNİZLEME VURGU ŞERİDİ ================= -->
+        <Style x:Key="PreviewAccentStripe" TargetType="Border">
+            <Setter Property="Width" Value="4"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Background" Value="{StaticResource BrushAccent}"/>
+            <Setter Property="Margin" Value="0,2,14,2"/>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid Margin="24">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================= BAŞLIK + ADIM ÇUBUĞU ================= -->
+        <Border Grid.Row="0"
+                Background="{StaticResource BrushCard}"
+                BorderBrush="{StaticResource BrushCardEdge}"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="22,16"
+                Margin="0,0,0,18">
+            <StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🚨" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="Mantıksal Alarm Oluşturma"
+                                   Foreground="{StaticResource BrushText}"
+                                   FontSize="20"
+                                   FontWeight="Bold"/>
+                        <TextBlock Text="Tek veya birden fazla parametreyi aynı arayüzden alarm kuralına dönüştürün."
+                                   Foreground="{StaticResource BrushSubText}"
+                                   FontSize="12"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- ===== ADIM İLERLEME ÇUBUĞU ===== -->
+                <Grid Margin="0,18,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <Border Style="{StaticResource StepBadge}">
+                            <TextBlock Text="1" Style="{StaticResource StepBadgeText}"/>
+                        </Border>
+                        <TextBlock Text="UYDU" Style="{StaticResource StepLabelText}"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="1" Style="{StaticResource StepConnectorLine}"/>
+
+                    <StackPanel Grid.Column="2">
+                        <Border Style="{StaticResource StepBadge}">
+                            <TextBlock Text="2" Style="{StaticResource StepBadgeText}"/>
+                        </Border>
+                        <TextBlock Text="PAKET" Style="{StaticResource StepLabelText}"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="3" Style="{StaticResource StepConnectorLine}"/>
+
+                    <StackPanel Grid.Column="4">
+                        <Border Style="{StaticResource StepBadge}">
+                            <TextBlock Text="3" Style="{StaticResource StepBadgeText}"/>
+                        </Border>
+                        <TextBlock Text="KOŞUL" Style="{StaticResource StepLabelText}"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="5" Style="{StaticResource StepConnectorLine}"/>
+
+                    <StackPanel Grid.Column="6">
+                        <Border Style="{StaticResource StepBadge}" Background="{StaticResource BrushAccent}">
+                            <TextBlock Text="4" Style="{StaticResource StepBadgeText}"/>
+                        </Border>
+                        <TextBlock Text="KAYDET" Style="{StaticResource StepLabelText}"/>
+                    </StackPanel>
+
+                </Grid>
+
+            </StackPanel>
+        </Border>
+
+        <!-- ================= ANA İÇERİK ================= -->
+        <Grid Grid.Row="1">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.3*"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ========= SOL: ADIM ADIM KOŞUL SİHİRBAZI ========= -->
+            <ScrollViewer Grid.Column="0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+
+                    <!-- ===== ADIM 1 + ADIM 2 (yan yana) ===== -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource WizardCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource StepBadge}" Width="24" Height="24" Margin="0,0,8,0">
+                                        <TextBlock Text="1" Style="{StaticResource StepBadgeText}" FontSize="11"/>
+                                    </Border>
+                                    <TextBlock Text="Uydu Seç" Foreground="{StaticResource BrushAccent}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <ComboBox x:Name="cmbUydu"
+                                          Style="{StaticResource DarkComboBox}"
+                                          Margin="0,12,0,0"
+                                          SelectionChanged="cmbUydu_SelectionChanged"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{StaticResource WizardCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Style="{StaticResource StepBadge}" Width="24" Height="24" Margin="0,0,8,0">
+                                        <TextBlock Text="2" Style="{StaticResource StepBadgeText}" FontSize="11"/>
+                                    </Border>
+                                    <TextBlock Text="Paket Seç" Foreground="{StaticResource BrushAccent}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <ComboBox x:Name="cmbPaket"
+                                          Style="{StaticResource DarkComboBox}"
+                                          Margin="0,12,0,0"
+                                          SelectionChanged="cmbPaket_SelectionChanged"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+
+                    <!-- ===== ADIM 3: KOŞUL OLUŞTUR ===== -->
+                    <Border Style="{StaticResource WizardCard}" Margin="0,16,0,0">
+                        <StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource StepBadge}" Width="24" Height="24" Margin="0,0,8,0">
+                                    <TextBlock Text="3" Style="{StaticResource StepBadgeText}" FontSize="11"/>
+                                </Border>
+                                <TextBlock Text="Koşul Oluştur" Foreground="{StaticResource BrushAccent}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="Her koşul sağa tek bir alarm olarak düşer; birden fazlasını seçip aşağıdaki mantık kapılarıyla birleştirebilirsiniz."
+                                       Foreground="{StaticResource BrushSubText}"
+                                       FontSize="10.5"
+                                       TextWrapping="Wrap"
+                                       Margin="0,5,0,0"/>
+
+                            <TextBlock Text="Telemetri (Parametre)" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox x:Name="cmbSolVeri"
+                                      Style="{StaticResource DarkComboBox}"
+                                      SelectionChanged="cmbSolVeri_SelectionChanged"/>
+
+                            <CheckBox x:Name="chkMutlakDeger"
+                                      Content="Mutlak değerini al (|param|)"
+                                      Foreground="{StaticResource BrushText}"
+                                      Margin="0,8,0,0"
+                                      Checked="chkMutlakDeger_CheckedChanged"
+                                      Unchecked="chkMutlakDeger_CheckedChanged"/>
+
+                            <Border Style="{StaticResource SectionDivider}" Margin="0,14,0,0"/>
+
+                            <TextBlock Text="Kritiklik" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox x:Name="cmbKritiklik"
+                                      Style="{StaticResource DarkComboBox}"
+                                      SelectedIndex="1"
+                                      SelectionChanged="cmbKritiklik_SelectionChanged">
+                                <ComboBoxItem Content="ℹ  Düşük" Tag="Dusuk"/>
+                                <ComboBoxItem Content="◆  Orta" Tag="Orta"/>
+                                <ComboBoxItem Content="▲  Yüksek" Tag="Yuksek"/>
+                                <ComboBoxItem Content="⛔  Kritik" Tag="Kritik"/>
+                            </ComboBox>
+
+                            <Grid Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Operatör" Style="{StaticResource FieldLabel}"/>
+                                    <ComboBox x:Name="cmbKarsilastirma"
+                                              Style="{StaticResource DarkComboBox}"
+                                              SelectionChanged="cmbKarsilastirma_SelectionChanged"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock x:Name="lblEsik" Text="Değer" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox x:Name="txtEsik" Style="{StaticResource DarkTextBox}" TextChanged="txtEsik_TextChanged"/>
+
+                                    <TextBlock x:Name="lblBoolean" Text="Durum"
+                                               Style="{StaticResource FieldLabel}"
+                                               Visibility="Collapsed"/>
+                                    <ComboBox x:Name="cmbBoolean"
+                                              Style="{StaticResource DarkComboBox}"
+                                              Visibility="Collapsed"
+                                              SelectionChanged="cmbBoolean_SelectionChanged">
+                                        <ComboBoxItem Content="True"/>
+                                        <ComboBoxItem Content="False"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock x:Name="lblMaxEsik" Text="Maksimum Eşik"
+                                       Style="{StaticResource FieldLabel}"
+                                       Visibility="Collapsed"/>
+                            <TextBox x:Name="txtMaxEsik"
+                                     Style="{StaticResource DarkTextBox}"
+                                     Visibility="Collapsed"
+                                     TextChanged="txtMaxEsik_TextChanged"/>
+
+                            <Border Style="{StaticResource SectionDivider}" Margin="0,14,0,0"/>
+
+                            <TextBlock Text="GELİŞMİŞ (opsiyonel)" Style="{StaticResource SectionHeader}"/>
+
+                            <CheckBox x:Name="chkMatematik"
+                                      Content="İki parametre arasında matematiksel işlem kullan"
+                                      Foreground="{StaticResource BrushText}"
+                                      Checked="chkMatematik_CheckedChanged"
+                                      Unchecked="chkMatematik_CheckedChanged"/>
+
+                            <StackPanel x:Name="pnlMatematik" Visibility="Collapsed">
+
+                                <TextBlock Text="İşlem" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="cmbMatOperator" Style="{StaticResource DarkComboBox}" SelectionChanged="cmbMatOperator_SelectionChanged">
+                                    <ComboBoxItem Content="+  (Topla)" Tag="Topla"/>
+                                    <ComboBoxItem Content="−  (Çıkar)" Tag="Cikar"/>
+                                    <ComboBoxItem Content="×  (Çarp)" Tag="Carp"/>
+                                    <ComboBoxItem Content="÷  (Böl)" Tag="Bol"/>
+                                    <ComboBoxItem Content="| |  (Mutlak Fark)" Tag="MutlakFark"/>
+                                </ComboBox>
+
+                                <TextBlock Text="İkinci Uydu" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="cmbUydu2"
+                                          Style="{StaticResource DarkComboBox}"
+                                          SelectionChanged="cmbUydu2_SelectionChanged"/>
+
+                                <TextBlock Text="İkinci Paket" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="cmbPaket2"
+                                          Style="{StaticResource DarkComboBox}"
+                                          SelectionChanged="cmbPaket2_SelectionChanged"/>
+
+                                <TextBlock Text="İkinci Parametre" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="cmbSolVeri2" Style="{StaticResource DarkComboBox}" SelectionChanged="cmbSolVeri2_SelectionChanged"/>
+
+                            </StackPanel>
+
+                            <Button x:Name="btnKosulEkle"
+                                    Content="+ Koşulu Ekle"
+                                    Height="38"
+                                    Margin="0,14,0,0"
+                                    Background="{StaticResource BrushPrimary}"
+                                    Style="{StaticResource SolidButton}"
+                                    Click="btnKosulEkle_Click"/>
+
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ===== MANTIK KAPILARI: SENARYOLARI BİRLEŞTİR ===== -->
+                    <Border Style="{StaticResource WizardCard}" Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="🔗  Senaryoları Birleştir" Foreground="{StaticResource BrushAccent}" FontSize="14" FontWeight="Bold"/>
+                            <TextBlock Text="Sağdaki listeden birden fazla senaryo seçip aşağıdaki kapılardan biriyle tek bir kurala dönüştürün."
+                                       Foreground="{StaticResource BrushSubText}"
+                                       FontSize="10.5"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,16"/>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                                <Button x:Name="btnVE" Content="∧&#10;VE" Tag="VE"
+                                        Style="{StaticResource LogicGateButton}"
+                                        Background="#22C55E"
+                                        ToolTip="Seçilenlerin HEPSİ doğruysa tetiklenir"
+                                        Click="btnBagla_Click"/>
+
+                                <Ellipse Width="6" Height="6" Fill="{StaticResource BrushSubText}" VerticalAlignment="Center" Margin="14,0"/>
+
+                                <Button x:Name="btnVEYA" Content="∨&#10;VEYA" Tag="VEYA"
+                                        Style="{StaticResource LogicGateButton}"
+                                        Background="#F59E0B"
+                                        ToolTip="Seçilenlerden HERHANGİ BİRİ doğruysa tetiklenir"
+                                        Click="btnBagla_Click"/>
+
+                                <Ellipse Width="6" Height="6" Fill="{StaticResource BrushSubText}" VerticalAlignment="Center" Margin="14,0"/>
+
+                                <Button x:Name="btnYADA" Content="⊕&#10;YADA" Tag="YADA"
+                                        Style="{StaticResource LogicGateButton}"
+                                        Background="#8B5CF6"
+                                        ToolTip="Seçilenlerden SADECE BİRİ doğruysa tetiklenir"
+                                        Click="btnBagla_Click"/>
+
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ===== ADIM 4 ÖNİZLEME: ALARM ÖNİZLEMESİ ===== -->
+                    <Border Style="{StaticResource WizardCard}" Margin="0,16,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource PreviewAccentStripe}"/>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="👁  Alarm Önizlemesi" Foreground="{StaticResource BrushAccent}" FontSize="14" FontWeight="Bold"/>
+                                <TextBlock x:Name="txtOnizleme"
+                                           Text="Yukarıdaki adımları tamamladığınızda oluşacak alarm kuralı burada özetlenecektir."
+                                           Foreground="{StaticResource BrushText}"
+                                           FontSize="13"
+                                           TextWrapping="Wrap"
+                                           Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ========= SAĞ: OLUŞTURULAN ALARMLAR ========= -->
+            <Border Grid.Column="2"
+                    Background="{StaticResource BrushCard}"
+                    BorderBrush="{StaticResource BrushCardEdge}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="22">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                        <TextBlock Text="Oluşturulan Alarm Senaryoları"
+                                   Foreground="{StaticResource BrushAccent}"
+                                   FontSize="15"
+                                   FontWeight="Bold"/>
+                        <TextBlock Text="🔔 = halihazırda aktif olan alarm. Tek bir senaryoyu seçip 'Alarmı Oluştur'a basarsanız direkt alarm olur; birden fazla senaryo seçip VE / VEYA / YADA ile birleştirebilirsiniz."
+                                   Foreground="{StaticResource BrushSubText}"
+                                   FontSize="10.5"
+                                   Margin="0,4,0,0"
+                                   TextWrapping="Wrap"/>
+
+                        <!-- Kayıtlı senaryolar varsayılan olarak gizli; sadece
+                             bu butona basılınca veri tabanından çekilip listelenir. -->
+                        <Button x:Name="btnVeritabanindanCek"
+                                Content="📥  Veritabanından Çek"
+                                Click="btnVeritabanindanCek_Click"
+                                Style="{StaticResource SolidButton}"
+                                Background="{StaticResource BrushAccent}"
+                                Foreground="#0B1220"
+                                Padding="12,8"
+                                FontSize="11.5"
+                                HorizontalAlignment="Left"
+                                Margin="0,12,0,0"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+
+                        <ListBox x:Name="lstKombinasyonlar"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="White"
+                                 ItemContainerStyle="{StaticResource SecilebilirListeOgesi}"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ListCard}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#000000" Opacity="0.22" BlurRadius="10" ShadowDepth="1"/>
+                                        </Border.Effect>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding BirlesikMetin}"
+                                                           Foreground="{StaticResource BrushText}"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="13"
+                                                           TextWrapping="Wrap"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                                    <Ellipse Width="6" Height="6" Fill="{Binding DurumRengi}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="{Binding DurumMetni}"
+                                                               Foreground="{Binding DurumRengi}"
+                                                               FontWeight="Bold"
+                                                               FontSize="11.5"
+                                                               VerticalAlignment="Center"/>
+                                                    <Border Background="{Binding KritiklikRengi}"
+                                                            CornerRadius="5"
+                                                            Padding="7,2"
+                                                            Margin="8,0,0,0">
+                                                        <TextBlock Text="{Binding KritiklikMetni}"
+                                                                   Foreground="White"
+                                                                   FontWeight="Bold"
+                                                                   FontSize="10"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                    Content="✕"
+                                                    Width="28"
+                                                    Height="28"
+                                                    Margin="10,0,0,0"
+                                                    Background="Transparent"
+                                                    Foreground="{StaticResource BrushDanger}"
+                                                    Style="{StaticResource GhostButton}"
+                                                    Tag="{Binding}"
+                                                    Click="btnKombinasyonSil_Click"/>
+
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                        </ListBox>
+
+                        <!-- Senaryolar henüz çekilmediğinde gösterilen yer tutucu -->
+                        <StackPanel x:Name="pnlSenaryoYerTutucu"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <TextBlock Text="📂"
+                                       FontSize="32"
+                                       HorizontalAlignment="Center"
+                                       Opacity="0.35"/>
+                            <TextBlock Text="Kayıtlı senaryolar gizli."
+                                       Foreground="{StaticResource BrushSubText}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       TextAlignment="Center"
+                                       Margin="0,8,0,0"/>
+                            <TextBlock Text="Görüntülemek için yukarıdaki 'Veritabanından Çek' butonuna basın."
+                                       Foreground="{StaticResource BrushSubText}"
+                                       FontSize="11"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Opacity="0.8"
+                                       Margin="0,4,0,0"
+                                       MaxWidth="190"/>
+                        </StackPanel>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+        </Grid>
+
+        <!-- ================= ALT BUTONLAR ================= -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,18,0,0">
+
+            <Button x:Name="btnIptal"
+                    Content="İptal"
+                    Width="104"
+                    Height="40"
+                    Margin="0,0,12,0"
+                    Background="#1F2A44"
+                    Style="{StaticResource SolidButton}"
+                    Click="btnIptal_Click"/>
+
+            <Button x:Name="btnKaydet"
+                    Content="✓  Alarmı Oluştur"
+                    Width="176"
+                    Height="40"
+                    Background="#22C55E"
+                    Style="{StaticResource SolidButton}"
+                    Click="btnKaydet_Click"/>
+
+        </StackPanel>
+
+    </Grid>
+
+</Window>
